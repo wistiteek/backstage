@@ -1,0 +1,68 @@
+name: Check for update
+
+on:
+  schedule:
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+jobs:
+  check-for-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/yarn
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: versions:bump
+        run: yarn backstage-cli versions:bump
+
+      - name: Check for file changes
+        id: file_changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes detected, skipping PR creation."
+            echo "::set-output name=changes_detected::false"
+          else
+            echo "Changes detected."
+            echo "::set-output name=changes_detected::true"
+          fi
+
+      - name: Get Backstage version
+        id: get_version
+        run: |
+          VERSION=$(cat backstage.json | jq -r '.version')
+          echo "Backstage version is $VERSION"
+          echo "::set-output name=version::$VERSION"
+
+      - name: Create a Pull Request
+        if: steps.file_changes.outputs.changes_detected == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b bump-backstage-versions
+          
+          git add .
+          git commit -m "chore: bump backstage versions to ${{ steps.get_version.outputs.version }}"
+          git push origin bump-backstage-versions
+          
+          gh pr create --title "chore: bump backstage versions to ${{ steps.get_version.outputs.version }}" --body "This PR bumps the Backstage versions to ${{ steps.get_version.outputs.version }}." --base main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
