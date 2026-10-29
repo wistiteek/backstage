@@ -1,5 +1,12 @@
 # @backstage/plugin-catalog-backend-module-azure
 
+## 0.3.24-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-events-node@0.5.0-next.1
+
 ## 0.3.24-next.0
 
 ### Patch Changes

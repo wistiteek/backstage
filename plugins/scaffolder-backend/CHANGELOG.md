@@ -1,5 +1,13 @@
 # @backstage/plugin-scaffolder-backend
 
+## 4.2.2-next.1
+
+### Patch Changes
+
+- 2fac95b: Group the Software Templates API documentation by functionality instead of placing all endpoints under "Untagged".
+- Updated dependencies
+  - @backstage/plugin-events-node@0.5.0-next.1
+
 ## 4.2.2-next.0
 
 ### Patch Changes

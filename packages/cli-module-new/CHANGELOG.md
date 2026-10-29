@@ -1,5 +1,11 @@
 # @backstage/cli-module-new
 
+## 0.1.9-next.1
+
+### Patch Changes
+
+- 33894d6: Fixed an issue where scaffolding templates on Windows could generate corrupted file names for files in subdirectories.
+
 ## 0.1.9-next.0
 
 ### Patch Changes
